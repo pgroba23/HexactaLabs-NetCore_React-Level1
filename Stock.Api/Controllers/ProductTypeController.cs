@@ -50,11 +50,24 @@ namespace Stock.Api.Controllers
         /// </summary>
         /// <param name="value">Una instancia</param>
         [HttpPost]
-        public ProductType Post([FromBody] ProductTypeDTO value)
+        public ActionResult Post([FromBody] ProductTypeDTO value)
         {
-            TryValidateModel(value);
+            /*TryValidateModel(value);
             var productType = this.service.Create(this.mapper.Map<ProductType>(value));
-            return this.mapper.Map<ProductType>(productType);
+            return this.mapper.Map<ProductType>(productType);*/
+            TryValidateModel(value);
+
+            try
+            {
+                var producttype = this.mapper.Map<ProductType>(value);
+                this.service.Create(producttype);
+                value.Id = producttype.Id;
+                return Ok(new { Success = true, Message = "", data = value });
+            }
+            catch
+            {
+                return Ok(new { Success = false, Message = "The name is already in use" });
+            }
         }
 
         /// <summary>
@@ -83,7 +96,7 @@ namespace Stock.Api.Controllers
              Expression<Func<Product, bool>> filter = x => x.ProductType.Id.Equals(id);
             
             this.service.Delete(productType);
-            return Ok();
+            return Ok(new { Success = true, Message = "", data = id });
         }
     }
 }
